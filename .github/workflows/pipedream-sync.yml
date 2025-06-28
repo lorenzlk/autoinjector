@@ -1,0 +1,112 @@
+name: Pipedream Sync
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'steps/**', 'package.json' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'steps/**' ]
+
+jobs:
+  pipedream-compatibility:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Test Pipedream compatibility
+      run: npm run pipedream-check
+      
+    - name: Run Pipedream integration tests
+      run: npm run test:pipedream
+    
+    - name: Comment on PR (if this is a PR)
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '✅ Pipedream compatibility checks passed! Components are ready for deployment.'
+          })
+
+  notify-pipedream-sync:
+    runs-on: ubuntu-latest
+    needs: pipedream-compatibility
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v44
+      with:
+        files: steps/**
+    
+    - name: Notify about component updates
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        echo "🔄 Pipedream components updated:"
+        echo "${{ steps.changed-files.outputs.all_changed_files }}"
+        
+        # Optional: Send webhook notification to Pipedream
+        # Uncomment and configure if you have a webhook URL
+        # curl -X POST "${{ secrets.PIPEDREAM_WEBHOOK_URL }}" \
+        #   -H "Content-Type: application/json" \
+        #   -d '{
+        #     "event": "autoinjector_updated",
+        #     "branch": "${{ github.ref_name }}",
+        #     "commit": "${{ github.sha }}",
+        #     "modified_files": "${{ steps.changed-files.outputs.all_changed_files }}",
+        #     "commit_message": "${{ github.event.head_commit.message }}"
+        #   }'
+    
+    - name: Log GitHub URLs for Pipedream import
+      run: |
+        echo "📋 Updated component URLs for Pipedream import:"
+        echo "Fetch:  https://raw.githubusercontent.com/${{ github.repository }}/main/steps/fetch.js"
+        echo "Extract: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/extract.js"  
+        echo "Generate: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/generate_snippet.js"
+        
+    - name: Create GitHub Release (on version tags)
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: AutoInjector ${{ github.ref }}
+        body: |
+          ## AutoInjector Release ${{ github.ref }}
+          
+          ### Pipedream Component URLs
+          Update your Pipedream workflows to use these URLs:
+          
+          - **Fetch Component**: `https://raw.githubusercontent.com/${{ github.repository }}/main/steps/fetch.js`
+          - **Extract Component**: `https://raw.githubusercontent.com/${{ github.repository }}/main/steps/extract.js`
+          - **Generate Component**: `https://raw.githubusercontent.com/${{ github.repository }}/main/steps/generate_snippet.js`
+          
+          ### Changes
+          ${{ github.event.head_commit.message }}
+          
+          ### Compatibility
+          ✅ All Pipedream compatibility checks passed
+          ✅ Integration tests successful
+          
+        draft: false
+        prerelease: false 

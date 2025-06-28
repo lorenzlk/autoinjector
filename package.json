@@ -9,10 +9,16 @@
     "dev": "node --watch index.js",
     "test": "node test/server.test.js",
     "test:browser": "echo 'For browser testing, open test-injection.js in your browser console'",
+    "test:pipedream": "node test/pipedream-integration.test.js",
+    "test:integration": "npm test && npm run test:pipedream",
     "visual-test": "node visual-test.js",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "production": "NODE_ENV=production node index.js"
+    "production": "NODE_ENV=production node index.js",
+    "pipedream-check": "node scripts/pipedream-check.js",
+    "pipedream-test": "npm run pipedream-check && npm run test:pipedream",
+    "sync-check": "node scripts/sync-check.js",
+    "pipedream-deploy": "echo 'Manual Pipedream component updates - see pipedream-sync.md for details'"
   },
   "dependencies": {
     "axios": "^1.6.0",
