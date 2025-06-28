@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "test": "node test-injection.js",
+    "test": "node test/server.test.js",
+    "test:browser": "echo 'For browser testing, open test-injection.js in your browser console'",
     "visual-test": "node visual-test.js",
     "lint": "eslint .",
     "format": "prettier --write .",

@@ -196,7 +196,7 @@ function calculateInjectionScore(tagName, id, className, selector, text, context
     'sponsored', 'advertisement', 'promo', 'ad-unit',
     'native-ad', 'promoted-content', 'partner-content'
   ];
-
+  
   // Adaptive keyword scoring based on context
   const getKeywordScore = (keyword, baseScore) => {
     let multiplier = 1;
@@ -233,7 +233,7 @@ function calculateInjectionScore(tagName, id, className, selector, text, context
     
     return Math.round(baseScore * multiplier);
   };
-
+  
   // Universal injection point scoring (works on any website)
   const keywords = [
     // PRIORITY 1: RELATED CONTENT (StyleCaster-specific boost)
@@ -470,8 +470,8 @@ export default defineComponent({
       
       // WordPress specific (if detected)
       ...(siteTypes.wordpress ? [
-        '[class*="wpd"]', '[id*="wpd"]',
-        '[class*="wpdiscuz"]', '[id*="wpdiscuz"]',
+      '[class*="wpd"]', '[id*="wpd"]',
+      '[class*="wpdiscuz"]', '[id*="wpdiscuz"]',
         '.wp-comment', '.comment-form'
       ] : []),
       
@@ -579,7 +579,7 @@ export default defineComponent({
     // Try each selector and collect elements
     selectors.forEach(selector => {
       try {
-        const elements = $(selector);
+      const elements = $(selector);
         
         // Skip overly broad selectors that would return too many elements
         if (elements.length > 100) {
@@ -587,73 +587,73 @@ export default defineComponent({
           return;
         }
         
-        console.log(`Selector "${selector}" found ${elements.length} elements`);
-        
-        // Debug: show what we're finding
-        if (elements.length > 0) {
-          console.log(`  First element: ${elements.first().prop('tagName')} with text: "${elements.first().text().trim().substring(0, 50)}..."`);
-        }
-        
-        elements.each((i, elem) => {
+      console.log(`Selector "${selector}" found ${elements.length} elements`);
+      
+      // Debug: show what we're finding
+      if (elements.length > 0) {
+        console.log(`  First element: ${elements.first().prop('tagName')} with text: "${elements.first().text().trim().substring(0, 50)}..."`);
+      }
+      
+      elements.each((i, elem) => {
           // Limit processing per selector for performance
           if (i > 50) return false;
           
           try {
-            const $elem = $(elem);
-            const id = $elem.attr('id');
-            const className = $elem.attr('class');
-            const tagName = elem.tagName?.toLowerCase();
-            const text = $elem.text().trim();
+        const $elem = $(elem);
+        const id = $elem.attr('id');
+        const className = $elem.attr('class');
+        const tagName = elem.tagName?.toLowerCase();
+        const text = $elem.text().trim();
             
             // Calculate element position in DOM for more consistent indexing
             const globalIndex = $('*').index(elem);
             const sameTagElements = $(tagName);
             const tagSpecificIndex = sameTagElements.index(elem);
-            
-            // Universal scoring for infinite scroll injection points
+        
+        // Universal scoring for infinite scroll injection points
             const injectionScore = calculateInjectionScore(tagName, id, className, selector, text, context, globalIndex);
-            
-            // Enhanced debugging for high-scoring elements
-            if (injectionScore > 20) {
-              console.log(`🎯 HIGH SCORE ELEMENT: ${tagName}#${id || 'no-id'}.${className || 'no-class'} = ${injectionScore} points`);
-              console.log(`  Text snippet: "${text.substring(0, 100)}..."`);
-              console.log(`  Selector: ${selector}`);
+        
+        // Enhanced debugging for high-scoring elements
+        if (injectionScore > 20) {
+          console.log(`🎯 HIGH SCORE ELEMENT: ${tagName}#${id || 'no-id'}.${className || 'no-class'} = ${injectionScore} points`);
+          console.log(`  Text snippet: "${text.substring(0, 100)}..."`);
+          console.log(`  Selector: ${selector}`);
               console.log(`  DOM position: global=${globalIndex}, tag-specific=${tagSpecificIndex}`);
-            }
-            
-            // Check if this is a WordPress Discuz element (include even with 0 text)
-            const isWordPressDiscuz = (id && (id.includes('wpd') || id.includes('wpdiscuz'))) || 
-                                     (className && (className.includes('wpd') || className.includes('wpdiscuz')));
-            
-            // Enhanced debugging for WordPress elements
-            if (isWordPressDiscuz) {
-              console.log(`🔍 WordPress Discuz element found: ${tagName}#${id || 'no-id'}.${className || 'no-class'} = ${injectionScore} points`);
-            }
-            
-            // Include elements with good injection scores, reasonable text content, OR WordPress Discuz elements
-            if (injectionScore > 0 || text.length > 10 || isWordPressDiscuz) {
+        }
+        
+        // Check if this is a WordPress Discuz element (include even with 0 text)
+        const isWordPressDiscuz = (id && (id.includes('wpd') || id.includes('wpdiscuz'))) || 
+                                 (className && (className.includes('wpd') || className.includes('wpdiscuz')));
+        
+        // Enhanced debugging for WordPress elements
+        if (isWordPressDiscuz) {
+          console.log(`🔍 WordPress Discuz element found: ${tagName}#${id || 'no-id'}.${className || 'no-class'} = ${injectionScore} points`);
+        }
+        
+        // Include elements with good injection scores, reasonable text content, OR WordPress Discuz elements
+        if (injectionScore > 0 || text.length > 10 || isWordPressDiscuz) {
               // Create more robust element identifier for deduplication
               const elementId = id || `${tagName}_${className}_${text.substring(0, 30).replace(/\s+/g, '_')}`;
               
-              candidates.push({
-                tagName,
-                id: id || null,
-                className: className || null,
-                selector,
-                textSnippet: text.substring(0, 150) + (text.length > 150 ? '...' : ''),
-                hasId: !!id,
+          candidates.push({
+            tagName,
+            id: id || null,
+            className: className || null,
+            selector,
+            textSnippet: text.substring(0, 150) + (text.length > 150 ? '...' : ''),
+            hasId: !!id,
                 elementIndex: tagSpecificIndex, // Use tag-specific index for nth-of-type consistency
                 globalIndex: globalIndex, // Global DOM position
-                textLength: text.length,
+            textLength: text.length,
                 injectionScore,
                 elementId: elementId, // For better deduplication
                 rawIndex: i // Original forEach index
-              });
+          });
             }
           } catch (elemError) {
             console.log(`⚠️ Error processing element in selector "${selector}":`, elemError.message);
-          }
-        });
+        }
+      });
       } catch (selectorError) {
         console.log(`⚠️ Error with selector "${selector}":`, selectorError.message);
       }
