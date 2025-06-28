@@ -1,4 +1,4 @@
-import axios from "axios";
+// Note: axios import removed as it's not used in current implementation
 
 export default defineComponent({
   async run({ steps }) {

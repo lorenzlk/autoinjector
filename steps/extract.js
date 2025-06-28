@@ -1,7 +1,8 @@
 import * as cheerio from 'cheerio';
 
 // Function to detect display ads that appear after comment sections
-function checkForPostCommentAds(selector, id, className, text = '', tagName = '') {
+// Note: This function is available for future ad detection features
+function _checkForPostCommentAds(selector, id, className, text = '', _tagName = '') {
   // Enhanced ad network patterns including WordPress and modern ad networks
   const adNetworkPatterns = [
     // Major ad networks (generic patterns)
@@ -373,7 +374,7 @@ export default defineComponent({
     // Parse context for specific targeting instructions
     const contextLower = context.toLowerCase();
     const isCommentContext = contextLower.includes('comment');
-    const isNewsArticle = contextLower.includes('news') || contextLower.includes('article');
+    const _isNewsArticle = contextLower.includes('news') || contextLower.includes('article');
     const isAfterAd = contextLower.includes('ad') || contextLower.includes('after_ad');
     const isEndContent = contextLower.includes('end') || contextLower.includes('bottom');
     const isSocialContext = contextLower.includes('social') || contextLower.includes('sharing');
@@ -382,7 +383,7 @@ export default defineComponent({
     
     // Extract position hints from context (e.g., "after_paragraph_3", "middle_content", "75_percent")
     const positionMatch = contextLower.match(/(top|middle|bottom|after_paragraph_(\d+)|(\d+)_percent)/);
-    const positionHint = positionMatch ? positionMatch[0] : null;
+    const _positionHint = positionMatch ? positionMatch[0] : null;
     
     const $ = cheerio.load(html);
     
@@ -676,7 +677,7 @@ export default defineComponent({
 
     // Pick the best candidate from each group
     const uniqueCandidates = [];
-    elementGroups.forEach((group, groupKey) => {
+    elementGroups.forEach((group, _groupKey) => {
       // Sort group by injection score and pick the best
       group.sort((a, b) => {
         // Primary: injection score

@@ -5,7 +5,7 @@ function testCommentSectionInjection() {
   console.log('🧪 Testing Comment Section SmartScroll Injection...');
   
   // Test the actual injection point from your workflow
-  var smartscrollDiv = document.createElement('div');
+  const smartscrollDiv = document.createElement('div');
   smartscrollDiv.id = 'smartscroll-unit-test';
   
   // Make it SUPER visible
@@ -39,7 +39,7 @@ function testCommentSectionInjection() {
   
   // Add pulsing animation
   if (!document.getElementById('smartscroll-pulse-styles')) {
-    var style = document.createElement('style');
+    const style = document.createElement('style');
     style.id = 'smartscroll-pulse-styles';
     style.textContent = `
       @keyframes pulse {
@@ -52,14 +52,14 @@ function testCommentSectionInjection() {
   }
   
   // Target the actual element from your workflow
-  var targetElement = document.getElementById('recent-comments-2');
+  const targetElement = document.getElementById('recent-comments-2');
   
   if (targetElement) {
     console.log('✅ Found target element:', targetElement);
     console.log('Element position:', targetElement.getBoundingClientRect());
     
     // Remove any existing test injection
-    var existing = document.getElementById('smartscroll-unit-test');
+    const existing = document.getElementById('smartscroll-unit-test');
     if (existing) existing.remove();
     
     // Inject after the target

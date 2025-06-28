@@ -113,7 +113,7 @@ app.get('/health', (req, res) => {
 
 // Input validation
 const validateWorkflowInput = (req, res, next) => {
-  const { url, context } = req.query;
+  const { url, context: _context } = req.query;
   
   if (!url) {
     return res.status(400).json({
@@ -245,7 +245,7 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((error, req, res, next) => {
+app.use((error, req, res, _next) => {
   console.error('Unhandled error:', error);
   
   res.status(500).json({
