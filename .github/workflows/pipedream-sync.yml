@@ -66,21 +66,21 @@ jobs:
         
         # Optional: Send webhook notification to Pipedream
         # Uncomment and configure if you have a webhook URL
-        # curl -X POST "${{ secrets.PIPEDREAM_WEBHOOK_URL }}" \
+        # curl -X POST "${PIPEDREAM_WEBHOOK_URL}" \
         #   -H "Content-Type: application/json" \
-        #   -d '{
-        #     "event": "autoinjector_updated",
-        #     "branch": "${{ github.ref_name }}",
-        #     "commit": "${{ github.sha }}",
-        #     "modified_files": "${{ steps.changed-files.outputs.all_changed_files }}",
-        #     "commit_message": "${{ github.event.head_commit.message }}"
-        #   }'
+        #   -d "{
+        #     \"event\": \"autoinjector_updated\",
+        #     \"branch\": \"${{ github.ref_name }}\",
+        #     \"commit\": \"${{ github.sha }}\",
+        #     \"modified_files\": \"${{ steps.changed-files.outputs.all_changed_files }}\",
+        #     \"commit_message\": \"${{ github.event.head_commit.message }}\"
+        #   }"
     
     - name: Log GitHub URLs for Pipedream import
       run: |
         echo "📋 Updated component URLs for Pipedream import:"
-        echo "Fetch:  https://raw.githubusercontent.com/${{ github.repository }}/main/steps/fetch.js"
-        echo "Extract: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/extract.js"  
+        echo "Fetch: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/fetch.js"
+        echo "Extract: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/extract.js"
         echo "Generate: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/generate_snippet.js"
         
     - name: Create GitHub Release (on version tags)
@@ -97,9 +97,9 @@ jobs:
           ### Pipedream Component URLs
           Update your Pipedream workflows to use these URLs:
           
-          - **Fetch Component**: `https://raw.githubusercontent.com/${{ github.repository }}/main/steps/fetch.js`
-          - **Extract Component**: `https://raw.githubusercontent.com/${{ github.repository }}/main/steps/extract.js`
-          - **Generate Component**: `https://raw.githubusercontent.com/${{ github.repository }}/main/steps/generate_snippet.js`
+          **Fetch Component**: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/fetch.js
+          **Extract Component**: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/extract.js
+          **Generate Component**: https://raw.githubusercontent.com/${{ github.repository }}/main/steps/generate_snippet.js
           
           ### Changes
           ${{ github.event.head_commit.message }}
@@ -107,6 +107,5 @@ jobs:
           ### Compatibility
           ✅ All Pipedream compatibility checks passed
           ✅ Integration tests successful
-          
         draft: false
         prerelease: false 
