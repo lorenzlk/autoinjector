@@ -438,6 +438,185 @@ function testInjectAtOptimalLocation() {
   }
 }
 
+// Newsletter-to-Sponsored Content Test
+function testNewsletterToSponsoredInjection() {
+  console.log('📧 Testing Newsletter-to-Sponsored Content Injection...');
+  
+  // Create highly visible test element
+  const testDiv = document.createElement('div');
+  testDiv.id = 'newsletter-sponsored-test';
+  testDiv.style.cssText = `
+    background: linear-gradient(45deg, #4CAF50, #2196F3, #FF9800, #9C27B0) !important;
+    background-size: 400% 400% !important;
+    animation: rainbowPulse 3s ease infinite !important;
+    padding: 30px !important;
+    margin: 25px auto !important;
+    border: 5px solid #fff !important;
+    border-radius: 15px !important;
+    color: white !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    z-index: 999999 !important;
+    position: relative !important;
+    display: block !important;
+    width: 95% !important;
+    max-width: 700px !important;
+    min-height: 120px !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7) !important;
+  `;
+  
+  // Add animation styles
+  if (!document.getElementById('newsletter-test-styles')) {
+    const style = document.createElement('style');
+    style.id = 'newsletter-test-styles';
+    style.textContent = `
+      @keyframes rainbowPulse {
+        0% { background-position: 0% 50%; transform: scale(1); }
+        25% { background-position: 100% 50%; transform: scale(1.02); }
+        50% { background-position: 100% 50%; transform: scale(1.05); }
+        75% { background-position: 0% 50%; transform: scale(1.02); }
+        100% { background-position: 0% 50%; transform: scale(1); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  testDiv.innerHTML = `
+    <div style="line-height: 1.4;">
+      📧➡️💰 NEWSLETTER-TO-SPONSORED INJECTION TEST<br>
+      <div style="font-size: 16px; margin-top: 10px; opacity: 0.9;">
+        ✅ AutoInjector positioned between newsletter signup and sponsored content<br>
+        🎯 Perfect placement for infinite scroll trigger
+      </div>
+    </div>
+  `;
+  
+  // Target newsletter-related elements first
+  const newsletterSelectors = [
+    'input[type="email"]',
+    '[id*="newsletter"]',
+    '[class*="newsletter"]', 
+    '[id*="subscribe"]',
+    '[class*="subscribe"]',
+    '[id*="signup"]',
+    '[class*="signup"]',
+    '[id*="email"]'
+  ];
+  
+  let targetElement = null;
+  let usedSelector = '';
+  
+  // Find the newsletter element
+  for (const selector of newsletterSelectors) {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 0) {
+      // Prefer elements that are visible and likely to be newsletter signup
+      targetElement = Array.from(elements).find(el => {
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0; // Visible element
+      }) || elements[0];
+      
+      usedSelector = selector;
+      break;
+    }
+  }
+  
+  if (targetElement) {
+    console.log('✅ Found newsletter element:', targetElement);
+    console.log('📍 Using selector:', usedSelector);
+    console.log('🎯 Element details:', {
+      id: targetElement.id,
+      className: targetElement.className,
+      tagName: targetElement.tagName,
+      type: targetElement.type
+    });
+    
+    // Remove any existing test
+    const existing = document.getElementById('newsletter-sponsored-test');
+    if (existing) existing.remove();
+    
+    // Insert after the newsletter element (or its container)
+    let insertionTarget = targetElement;
+    
+    // If it's an input, try to find its container
+    if (targetElement.tagName.toLowerCase() === 'input') {
+      const container = targetElement.closest('form, div[class*="newsletter"], div[class*="subscribe"], section');
+      if (container) {
+        insertionTarget = container;
+        console.log('📦 Using container element instead of input:', container);
+      }
+    }
+    
+    insertionTarget.parentNode.insertBefore(testDiv, insertionTarget.nextSibling);
+    
+    console.log('✅ Newsletter-to-Sponsored test injected successfully!');
+    
+    // Scroll to show the injection
+    setTimeout(() => {
+      testDiv.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'center'
+      });
+    }, 500);
+    
+    // Log surrounding context
+    console.log('🔍 Injection context:');
+    console.log('  Previous sibling:', insertionTarget.previousElementSibling);
+    console.log('  Next sibling:', insertionTarget.nextElementSibling);
+    console.log('  Parent element:', insertionTarget.parentElement);
+    
+    // Check for sponsored content nearby
+    const sponsoredSelectors = [
+      '[class*="sponsored"]',
+      '[class*="taboola"]',
+      '[class*="outbrain"]',
+      '[class*="ad"]',
+      '[id*="sponsored"]'
+    ];
+    
+    sponsoredSelectors.forEach(selector => {
+      const sponsored = document.querySelectorAll(selector);
+      if (sponsored.length > 0) {
+        console.log(`💰 Found ${sponsored.length} sponsored content elements matching: ${selector}`);
+      }
+    });
+    
+  } else {
+    console.log('❌ No newsletter elements found');
+    console.log('🔍 Searched for selectors:', newsletterSelectors);
+    
+    // Fallback: inject at end of main content
+    const fallbackTargets = ['main', 'article', '.content', 'body'];
+    for (const selector of fallbackTargets) {
+      const fallback = document.querySelector(selector);
+      if (fallback) {
+        console.log(`⚠️ Using fallback target: ${selector}`);
+        fallback.appendChild(testDiv);
+        break;
+      }
+    }
+  }
+  
+  // Cleanup function
+  window.removeNewsletterTest = function() {
+    const test = document.getElementById('newsletter-sponsored-test');
+    const styles = document.getElementById('newsletter-test-styles');
+    if (test) {
+      test.remove();
+      console.log('🧹 Newsletter test removed');
+    }
+    if (styles) {
+      styles.remove();
+    }
+  };
+}
+
+// Add to window for global access
+window.testNewsletterToSponsoredInjection = testNewsletterToSponsoredInjection;
+
 // 🚀 RUN THE UNIVERSAL VISUAL TEST
 console.log('🚀 Starting UNIVERSAL AutoInjector Visual Test...');
 const result = testInjectAtOptimalLocation();

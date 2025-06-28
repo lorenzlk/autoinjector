@@ -74,66 +74,101 @@ export default defineComponent({
     
     const insertionPoint = isTaboolaOutbrain ? 'targetElement' : 'targetElement.nextSibling';
     
-    // Generate hardcoded green test block
-    const greenTestSnippet = `// AutoInjector Green Test Block
-var testDiv = document.createElement('div');
-testDiv.id = 'autoinjector-green-test';
-testDiv.style.cssText = \`
-  background: linear-gradient(45deg, #00ff00, #32cd32, #00ff7f, #7fff00) !important;
-  background-size: 400% 400% !important;
-  animation: greenPulse 2s ease infinite !important;
-  padding: 40px !important;
-  margin: 30px auto !important;
-  border: 10px solid #006400 !important;
-  border-radius: 20px !important;
-  color: white !important;
-  font-size: 28px !important;
-  font-weight: bold !important;
-  text-align: center !important;
-  box-shadow: 0 0 50px rgba(0,255,0,0.8) !important;
-  z-index: 999999 !important;
-  position: relative !important;
-  display: block !important;
-  width: 90% !important;
-  max-width: 600px !important;
-  min-height: 150px !important;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
-\`;
-var style = document.createElement('style');
-style.textContent = \`@keyframes greenPulse { 
-  0% { background-position: 0% 50%; transform: scale(1); box-shadow: 0 0 50px rgba(0,255,0,0.8); } 
-  50% { background-position: 100% 50%; transform: scale(1.05); box-shadow: 0 0 80px rgba(0,255,0,1); } 
-  100% { background-position: 0% 50%; transform: scale(1); box-shadow: 0 0 50px rgba(0,255,0,0.8); } 
-}\`;
-document.head.appendChild(style);
-testDiv.innerHTML = '🟢 AUTOINJECTOR GREEN TEST 🟢<br><div style="font-size: 18px; margin-top: 10px;">✅ INJECTION SUCCESSFUL!<br>Infinite scroll would load here</div>';
+    // Generate modern, production-ready injection snippet
+    const modernSnippet = `// AutoInjector - Modern Infinite Scroll Injection
+(function() {
+  'use strict';
+  
+  // Create the infinite scroll container
+  const smartscrollDiv = document.createElement('div');
+  smartscrollDiv.id = 'smartscroll-unit';
+  smartscrollDiv.className = 'autoinjector-container';
+  
+  // Add modern styling for seamless integration
+  smartscrollDiv.style.cssText = \`
+    width: 100%;
+    margin: 20px 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    display: block;
+    position: relative;
+    z-index: 1;
+    min-height: 1px;
+  \`;
+  
+  // Find target element using the best available selector
+  const targetElement = ${topCandidate.id ? 
+    `document.getElementById('${topCandidate.id}')` : 
+    `document.querySelector('${selector}')`};
+  
+  if (targetElement) {
+    // Insert ${insertionPoint === 'targetElement' ? 'before' : 'after'} the target element
+    targetElement.parentNode.insertBefore(smartscrollDiv, ${insertionPoint});
+    
+    console.log('✅ AutoInjector: Infinite scroll container injected successfully');
+    console.log('📍 Location: ${insertionPoint === 'targetElement' ? 'Before' : 'After'} ${selector}');
+    
+    // Optional: Add intersection observer for loading trigger
+    if (typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Trigger infinite scroll loading here
+            console.log('🔄 AutoInjector: Infinite scroll trigger point reached');
+            // Your infinite scroll logic would go here
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      observer.observe(smartscrollDiv);
+    }
+    
+  } else {
+    console.warn('⚠️ AutoInjector: Target element not found for selector: ${selector}');
+    
+    // Fallback: Try alternative selectors
+    const fallbackSelectors = [
+      '[class*="newsletter"]',
+      '[id*="newsletter"]', 
+      '[class*="subscribe"]',
+      'article',
+      'main',
+      '.content'
+    ];
+    
+    let fallbackTarget = null;
+    for (const fallbackSelector of fallbackSelectors) {
+      fallbackTarget = document.querySelector(fallbackSelector);
+      if (fallbackTarget) {
+        console.log('✅ AutoInjector: Using fallback selector:', fallbackSelector);
+        fallbackTarget.parentNode.insertBefore(smartscrollDiv, fallbackTarget.nextSibling);
+        break;
+      }
+    }
+    
+    if (!fallbackTarget) {
+      console.warn('⚠️ AutoInjector: No suitable injection point found, appending to body');
+      document.body.appendChild(smartscrollDiv);
+    }
+  }
+  
+  // Return reference for external access
+  window.autoinjectorContainer = smartscrollDiv;
+  
+})();`;
 
-var targetElement = document.querySelector('${selector}');
-if (targetElement) {
-  targetElement.parentNode.insertBefore(testDiv, ${insertionPoint});
-  console.log('🟢 Green test block injected at:', '${selector}');
-  setTimeout(() => testDiv.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-} else {
-  console.log('❌ Target not found, adding to body');
-  document.body.appendChild(testDiv);
-  testDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-// Cleanup function
-window.removeGreenTest = function() {
-  var test = document.getElementById('autoinjector-green-test');
-  if (test) { test.remove(); console.log('🧹 Green test removed'); }
-};`;
-
-    console.log('✅ Generated green test block for selector:', selector);
+    console.log('✅ Generated modern injection snippet for selector:', selector);
     console.log('🎯 Injection point:', insertionPoint === 'targetElement' ? 'BEFORE target' : 'AFTER target');
     
     return {
-      snippet: greenTestSnippet,
+      snippet: modernSnippet,
       candidatesUsed: candidates.length,
-      model: "hardcoded-green-block",
+      model: "modern-autoinjector-v2",
       selector: selector,
-      insertionPoint: insertionPoint === 'targetElement' ? 'before' : 'after'
+      insertionPoint: insertionPoint === 'targetElement' ? 'before' : 'after',
+      targetId: topCandidate.id,
+      targetClass: topCandidate.className
     };
   }
 }); 
